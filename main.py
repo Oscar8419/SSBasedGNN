@@ -11,19 +11,21 @@ Data_Path_0 = "./signal0/SNR_-19_Signal0_x"
 num_SU = 10
 
 
-def train(adj_matrix, features, model, labels, epoch=100):
+def train(adj_matrix, features, model, labels, epoch=10):
     model.train()
     optimizer = optim.Adam(model.parameters(), lr=0.01, weight_decay=5e-4)
     for i in range(epoch):
         t_start = time.time()
         optimizer.zero_grad()
-        output = model(features, adj_matrix)
+        output, output_softmax = model(features, adj_matrix)
         loss_train = F.nll_loss(output, labels)
         loss_train.backward()
         optimizer.step()
-        if (i+1) % 10 == 0:
+        if (i+1) % 1 == 0:
             print(
                 f"epoch {i}, loss:{loss_train}, time_spend:{time.time() - t_start }")
+            print("output: ", output_softmax)
+            print("====")
 
 
 def main():
@@ -35,8 +37,8 @@ def main():
     data_0 = node_feature(Data_Path_0, num_SU)
     data_1 = node_feature(Data_Path_1, num_SU)
 
-    label_1 = torch.ones(10, device=mydevice, dtype=torch.int64)
-    label_0 = torch.zeros(10, device=mydevice, dtype=torch.int64)
+    label_1 = torch.ones(1, device=mydevice, dtype=torch.int64)
+    label_0 = torch.zeros(1, device=mydevice, dtype=torch.int64)
 
     adj_matrix_0 = adj_matrix(data_0, num_SU, rho=1)  # shape=(num_SU, num_SU)
     adj_matrix_1 = adj_matrix(data_1, num_SU, rho=1)
@@ -48,7 +50,7 @@ def main():
     data_0 = torch.tensor(data_0, dtype=torch.float32, device=mydevice)
     data_1 = torch.tensor(data_1, dtype=torch.float32, device=mydevice)
 
-    model = GCN(64, 32, 2, 0.2).to(device=mydevice)
+    model = GCN(64, 32, 16, dropout=0.2, pooling="mean").to(device=mydevice)
     # optimizer = optim.Adam(model.parameters(), lr=0.01, weight_decay=5e-4)
     train(adj_matrix_1, data_1, model, label_1)
 
