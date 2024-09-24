@@ -53,6 +53,10 @@ def main():
     model = GCN(64, 32, 16, dropout=0.2, pooling="mean").to(device=mydevice)
     # optimizer = optim.Adam(model.parameters(), lr=0.01, weight_decay=5e-4)
     train(adj_matrix_1, data_1, model, label_1)
+    # save whole model ,including model and parameter
+    torch.save(model, "myModel.pt")
+    # only save model's parameter
+    torch.save(model.state_dict(), "model_param.pt")
 
 
 if __name__ == "__main__":
