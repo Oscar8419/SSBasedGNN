@@ -2,16 +2,18 @@ import numpy as np
 import scipy.io as sio
 
 
-def import_data(Path):
+def import_data(Path, label):
     # just select the first column
-    return sio.loadmat(Path)['feature'][:, 0]
+    return sio.loadmat(Path)[f'feature_{label}'][:, 0]
 
 
-def node_feature(Path, num_SU):
+def node_feature(Path, num_SU, label, sequence):
     '''return shape is (num_SU, num of featurs per node)'''
     data = np.zeros((num_SU, 64))  # shape=(num_SU, num of featurs per node)
-    for i in range(1, num_SU + 1):
-        data[i-1] = import_data(Path.replace('x', str(i)))
+    i = 0
+    for seq in range(sequence, sequence+num_SU):
+        i += 1
+        data[i-1] = import_data(Path.replace('x', str(seq)), label)
     return data
 
 

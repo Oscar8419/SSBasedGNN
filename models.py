@@ -19,3 +19,24 @@ class GCN(nn.Module):
         output, output_softmax = self.gp(x, pooling=self.pooling)
         # return log_softmax and softmax
         return output, output_softmax
+
+
+class Confusion_Matrix():
+    def __init__(self) -> None:
+        super(Confusion_Matrix, self).__init__()
+        self.TP = 0
+        self.TN = 0
+        self.FP = 0
+        self.FN = 0
+
+    def Pfa(self):
+        return (self.FP)/(self.FP + self.TN)
+
+    def Pd(self):
+        return (self.TP)/(self.TP + self.FN)
+
+    def clear(self):
+        self.TP = 0
+        self.TN = 0
+        self.FP = 0
+        self.FN = 0

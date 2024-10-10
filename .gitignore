@@ -1,4 +1,5 @@
 t.py
+t.ipynb
 *.mat
 __pycache__/
 *.pt
