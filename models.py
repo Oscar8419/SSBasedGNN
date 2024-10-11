@@ -10,7 +10,7 @@ class GCN(nn.Module):
         self.gc2 = GraphConvolution(num_hidden, num_class)
         self.dropout = dropout
         self.pooling = pooling
-        self.gp = GraphPooling(num_class, 8, dropout=self.dropout)
+        self.gp = GraphPooling(num_class, dim_hidden=32, dropout=self.dropout)
 
     def forward(self, x, adj):
         x = F.relu(self.gc1(x, adj))
@@ -30,9 +30,13 @@ class Confusion_Matrix():
         self.FN = 0
 
     def Pfa(self):
+        if self.FP + self.TN == 0:
+            return 0
         return (self.FP)/(self.FP + self.TN)
 
     def Pd(self):
+        if self.TP + self.FN == 0:
+            return 0
         return (self.TP)/(self.TP + self.FN)
 
     def clear(self):

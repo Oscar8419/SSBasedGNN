@@ -10,10 +10,10 @@ class GraphConvolution(nn.Module):
         self.in_features = in_features
         self.out_features = out_features
         self.weight = Parameter(torch.randn(
-            in_features, out_features, dtype=torch.float32))
+            in_features, out_features, dtype=torch.float64))
         if bias:
             self.bias = Parameter(torch.randn(
-                out_features, dtype=torch.float32))
+                out_features, dtype=torch.float64))
         else:
             self.register_parameter('bias', None)
         # self.reset_parameters()
@@ -38,12 +38,12 @@ class GraphPooling(nn.Module):
         self.dim_hidden = dim_hidden
         self.dim_graph_embedding = dim_graph_embedding
         self.weight1 = Parameter(torch.randn(
-            self.dim_graph_embedding, self.dim_hidden, dtype=torch.float32))
+            self.dim_graph_embedding, self.dim_hidden, dtype=torch.float64))
         self.bias1 = Parameter(torch.randn(
-            1, self.dim_hidden, dtype=torch.float32))
+            1, self.dim_hidden, dtype=torch.float64))
         self.weight2 = Parameter(torch.randn(
-            self.dim_hidden, 2, dtype=torch.float32))
-        self.bias2 = Parameter(torch.randn(1, 2, dtype=torch.float32))
+            self.dim_hidden, 2, dtype=torch.float64))
+        self.bias2 = Parameter(torch.randn(1, 2, dtype=torch.float64))
 
     def forward(self, node_embedding, pooling="mean"):
         if pooling == "mean":

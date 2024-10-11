@@ -1,5 +1,39 @@
 import numpy as np
 import scipy.io as sio
+import h5py
+import json
+import torch
+from numpy import argwhere
+
+frame_perSNR = 4096
+frame_perModula = 4096 * 26
+
+
+def save_model(model, save_path='./model_param.pt'):
+    # save whole model ,including model and parameter
+    # torch.save(model, save_path)
+    # only save model's parameter
+    torch.save(model.state_dict(), save_path)
+
+
+def load_model(model, save_path='./model_param.pt'):
+    model.load_state_dict(torch.load(save_path))
+
+
+def init_dataset(Path_dataset, Path_classes):
+    # Open the dataset
+    hdf5_file = h5py.File(Path_dataset,  'r')
+    # Load the modulation classes. You can also copy and paste the content of classes-fixed.txt.
+    modulation_classes = json.load(open(Path_classes, 'r'))
+
+    # Read the HDF5 groups
+    data = hdf5_file['X']
+    modulation_onehot = hdf5_file['Y']
+    SNR = hdf5_file['Z']
+    string_list = json.load(open(Path_classes, 'r'))
+    modulation_dict = {item: idx for idx, item in enumerate(string_list)}
+
+    return (data, modulation_onehot, SNR, modulation_dict)
 
 
 def import_data(Path, label):
@@ -31,3 +65,12 @@ def adj_matrix(feature, num_SU, rho=1):
     D_exp = np.diag(np.power(np.sum(A, axis=1, keepdims=False), [-1/2]))
     A_hat = D_exp @ A @ D_exp
     return A_hat
+
+
+def noise_feature(snr, num_SU=8):
+    Num_Sample = 1024
+    power_noise = 1/(10**(snr/10)+1)
+    power_noise_iq = power_noise/2
+    noise_I = np.sqrt(power_noise_iq) * np.random.randn(num_SU, Num_Sample)
+    # noise_Q = np.sqrt(power_noise_iq) * np.random.randn(num_SU, Num_Sample)
+    return noise_I
