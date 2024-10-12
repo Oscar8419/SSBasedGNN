@@ -32,12 +32,12 @@ class Confusion_Matrix():
     def Pfa(self):
         if self.FP + self.TN == 0:
             return 0
-        return (self.FP)/(self.FP + self.TN)
+        return round((self.FP)/(self.FP + self.TN), 2)
 
     def Pd(self):
         if self.TP + self.FN == 0:
             return 0
-        return (self.TP)/(self.TP + self.FN)
+        return round((self.TP)/(self.TP + self.FN), 2)
 
     def clear(self):
         self.TP = 0

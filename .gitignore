@@ -3,3 +3,4 @@ t.ipynb
 *.mat
 __pycache__/
 *.pt
+*.json

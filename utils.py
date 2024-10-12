@@ -2,8 +2,9 @@ import numpy as np
 import scipy.io as sio
 import h5py
 import json
+from datetime import datetime
 import torch
-from numpy import argwhere
+from numpy import record, record, argwhere
 
 frame_perSNR = 4096
 frame_perModula = 4096 * 26
@@ -68,9 +69,27 @@ def adj_matrix(feature, num_SU, rho=1):
 
 
 def noise_feature(snr, num_SU=8):
+    '''return noise signal, shape = (num_SU, 1024)
+    '''
     Num_Sample = 1024
     power_noise = 1/(10**(snr/10)+1)
     power_noise_iq = power_noise/2
     noise_I = np.sqrt(power_noise_iq) * np.random.randn(num_SU, Num_Sample)
     # noise_Q = np.sqrt(power_noise_iq) * np.random.randn(num_SU, Num_Sample)
     return noise_I
+
+
+def save_result(result_dict, file="test_result.json"):
+    result_dict["time"] = str(datetime.now())
+    # 尝试读取现有的JSON文件内容
+    try:
+        with open(file, "r") as f:
+            data = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        # 如果文件不存在或为空，则创建一个新的数组
+        data = []
+    # 将新数据追加到数组中
+    data.append(result_dict)
+    # 将数组写回JSON文件
+    with open(file, "w") as f:
+        json.dump(data, f, indent=4)
