@@ -79,8 +79,9 @@ def noise_feature(snr, num_SU=8):
     return noise_I
 
 
-def save_result(result_dict, file="test_result.json"):
+def save_result(result_dict, modulation="16QAM", file="test_result.json"):
     result_dict["time"] = str(datetime.now())
+    result_dict["modulation"] = modulation
     # 尝试读取现有的JSON文件内容
     try:
         with open(file, "r") as f:

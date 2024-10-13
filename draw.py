@@ -10,8 +10,8 @@ snr_values = []
 pd_values = []
 pfa_values = []
 
-for key, value in data[0].items():
-    if "time" in key:
+for key, value in data[-1].items():
+    if "time" in key or "modulation" in key:
         continue
     snr = key.split('_')[1]  # 提取SNR值
     pd = value['Pd']
@@ -21,7 +21,7 @@ for key, value in data[0].items():
     pfa_values.append(pfa)
 
 # 绘制点线图
-plt.figure(figsize=(10, 5))
+# plt.figure(figsize=(10, 5))
 
 # Pd和Pfa的点线图
 plt.plot(snr_values, pd_values, marker='o', label='Pd')

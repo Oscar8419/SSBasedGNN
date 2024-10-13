@@ -2,7 +2,6 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 import torch.optim as optim
-import json
 from utils import *
 from models import GCN, Confusion_Matrix
 from torch.utils.data import DataLoader
@@ -11,8 +10,11 @@ from model_dataset import Signal_Dataset
 confus_matrix = Confusion_Matrix()
 THRESHOLD = 0.5
 snr_target = -20
-signal_data = Signal_Dataset(snr_target=snr_target, train=True)
-signal_test_data = Signal_Dataset(snr_target=snr_target, train=False)
+modulation_target = "16QAM"
+signal_data = Signal_Dataset(
+    snr_target=snr_target, train=True, modulation=modulation_target)
+signal_test_data = Signal_Dataset(
+    snr_target=snr_target, train=False, modulation=modulation_target)
 num_SU = 8
 signal_dataloader = DataLoader(signal_data, batch_size=num_SU)
 signal_test_dataloader = DataLoader(signal_test_data, batch_size=num_SU)
@@ -132,7 +134,7 @@ def main():
             signal_test_data, batch_size=num_SU)
         test(signal_test_dataloader, model, save_result=True)
 
-    save_result(test_result)
+    save_result(test_result, modulation=modulation_target)
     save_model(model)
 
 
