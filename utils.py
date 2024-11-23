@@ -5,7 +5,7 @@ import json
 from datetime import datetime
 import torch
 from numpy import record, record, argwhere
-
+import torch.nn as nn
 frame_perSNR = 4096
 frame_perModula = 4096 * 26
 
@@ -68,15 +68,33 @@ def adj_matrix(feature, num_SU, rho=1):
     return A_hat
 
 
-def noise_feature(snr, num_SU=8):
-    '''return noise signal, shape = (num_SU, 1024)
+def noise_feature(snr, num_SU=8, usingSNR=False, usingIQ=False):
+    '''return noise signal(average power is 1), shape = (num_SU, 1024) or (num_SU,1024,2)
     '''
-    Num_Sample = 1024
-    power_noise = 1/(10**(snr/10)+1)
-    power_noise_iq = power_noise/2
-    noise_I = np.sqrt(power_noise_iq) * np.random.randn(num_SU, Num_Sample)
-    # noise_Q = np.sqrt(power_noise_iq) * np.random.randn(num_SU, Num_Sample)
-    return noise_I
+    if usingSNR and (usingIQ is False):
+        Num_Sample = 1024
+        power_noise = 1/(10**(snr/10)+1)
+        power_noise_iq = power_noise/2
+        noise_I = np.sqrt(power_noise_iq) * np.random.randn(num_SU, Num_Sample)
+        # noise_Q = np.sqrt(power_noise_iq) * np.random.randn(num_SU, Num_Sample)
+        return noise_I
+    elif (usingSNR is False) and (usingIQ is False):
+        Num_Sample = 1024
+        power_noise = 1
+        power_noise_iq = power_noise / 2
+        noise_I = np.sqrt(power_noise_iq) * np.random.randn(num_SU, Num_Sample)
+        # noise_Q = np.sqrt(power_noise_iq) * np.random.randn(num_SU, Num_Sample)
+        return noise_I
+    elif (usingSNR is False) and (usingIQ is True):
+        Num_Sample = 1024
+        power_noise = 1
+        power_noise_iq = power_noise / 2
+        noise_I = np.sqrt(power_noise_iq) * np.random.randn(num_SU, Num_Sample)
+        noise_Q = np.sqrt(power_noise_iq) * np.random.randn(num_SU, Num_Sample)
+        return np.stack((noise_I, noise_Q), axis=-1)
+        # return noise_I
+        # return noise_I + 1j*noise_Q
+        # return [noise_I, noise_Q]
 
 
 def save_result(result_dict, modulation="16QAM", file="test_result.json"):
@@ -94,3 +112,23 @@ def save_result(result_dict, modulation="16QAM", file="test_result.json"):
     # 将数组写回JSON文件
     with open(file, "w") as f:
         json.dump(data, f, indent=4)
+
+
+def show_grad(model):
+    for name, param in model.named_parameters():
+        if param.grad is not None:
+            print(f"{name}: {param.grad}")
+
+
+def mlp_init(model):
+    for layer in model.modules():
+        if isinstance(layer, nn.Linear):
+            nn.init.xavier_normal_(layer.weight)
+            if layer.bias is not None:
+                nn.init.zeros_(layer.bias)
+
+
+def grad_center(model):
+    for param in model.parameters():
+        if param.grad is not None:
+            param.grad.data = (param.grad.data - param.grad.data.mean()) / 1

@@ -1,14 +1,22 @@
 from torch.utils.data import Dataset
 import h5py
 import torch
+import numpy as np
 
 modulation_dict = {'OOK': 0, '4ASK': 1, '8ASK': 2, 'BPSK': 3, 'QPSK': 4, '8PSK': 5, '16PSK': 6, '32PSK': 7, '16APSK': 8, '32APSK': 9, '64APSK': 10, '128APSK': 11,
                    '16QAM': 12, '32QAM': 13, '64QAM': 14, '128QAM': 15, '256QAM': 16, 'AM-SSB-WC': 17, 'AM-SSB-SC': 18, 'AM-DSB-WC': 19, 'AM-DSB-SC': 20, 'FM': 21, 'GMSK': 22, 'OQPSK': 23}
 
 
+def sig_power(signal_data):
+    iq_signal = signal_data[:, 0] + 1j*signal_data[:, 1]
+    signal_average_power = np.mean(np.abs(iq_signal)**2)
+    return signal_average_power
+
+
 # Dataset at given snr range and modulation
 class Signal_Dataset(Dataset):
-    def __init__(self, path_data="D:\Dataset\\2018.01\GOLD_XYZ_OSC.0001_1024.hdf5", modulation="16QAM", snr_target=-20, train=True) -> None:
+    def __init__(self, path_data="D:\Dataset\\2018.01\GOLD_XYZ_OSC.0001_1024.hdf5",
+                 modulation="16QAM", snr_target=-20, train=True, cnn=False):
         super(Signal_Dataset, self).__init__()
         self.path_data = path_data
         hdf5_file = h5py.File(path_data,  'r')
@@ -18,6 +26,7 @@ class Signal_Dataset(Dataset):
         self.frame_perModula = 4096 * 26
         self.snr_target = snr_target
         self.train = train
+        self.cnn = cnn
         self.idx_modulation = modulation_dict[modulation]
         self.idxBase_modulation_data = self.idx_modulation * self.frame_perModula
         self.idxoffset_snr_data = (self.snr_target + 20)//2 * self.frame_perSNR
@@ -54,6 +63,9 @@ class Signal_Dataset(Dataset):
         idx_data = self.idxBase_modulation_data + self.idxoffset_snr_data + idx
         if self.train is False:
             idx_data += self.train_num  # when testing ,idx add self.train_num
-        data_target = self.data[idx_data]
+        data_target = self.data[idx_data] / \
+            np.sqrt(sig_power(self.data[idx_data]))
         label = torch.tensor([1])
+        if self.cnn:
+            data_target = np.expand_dims(data_target, axis=0)
         return (data_target, label)

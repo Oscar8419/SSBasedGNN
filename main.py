@@ -18,8 +18,8 @@ signal_test_data = Signal_Dataset(
 num_SU = 8
 signal_dataloader = DataLoader(signal_data, batch_size=num_SU)
 signal_test_dataloader = DataLoader(signal_test_data, batch_size=num_SU)
-learning_rate = 1e-3
-epochs = 5
+learning_rate = 5e-4
+epochs = 1
 mydevice = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 test_result = {}
 
@@ -47,7 +47,7 @@ def train(dataloader, model, optimizer):
         else:
             confus_matrix.FN += 1
         # H0 only sensing noise
-        noise = noise_feature(snr_target, num_SU=num_SU)
+        noise = noise_feature(snr_target, num_SU=num_SU, usingSNR=True)
         A_hat = adj_matrix(noise, num_SU)
         noise = torch.from_numpy(noise).to(mydevice)
         A_hat = torch.from_numpy(A_hat).to(mydevice)
@@ -64,7 +64,8 @@ def train(dataloader, model, optimizer):
         else:
             confus_matrix.TN += 1
 
-    train_loss /= num_Graph
+    train_loss = round(train_loss/num_Graph, 4)
+    print(f"snr:{snr_target}, train_loss:{train_loss},in training")
     # print(
     # f"SNR:{snr_target},\t train loss:{train_loss:.2f},\t Pd:{confus_matrix.Pd()},\t Pfa:{confus_matrix.Pfa()}")
 
@@ -89,7 +90,7 @@ def test(dataloader, model, save_result=False):
             else:
                 confus_matrix.FN += 1
             # H0
-            noise = noise_feature(snr_target, num_SU=num_SU)
+            noise = noise_feature(snr_target, num_SU=num_SU, usingSNR=True)
             A_hat = adj_matrix(noise, num_SU)
             noise = torch.from_numpy(noise).to(mydevice)
             A_hat = torch.from_numpy(A_hat).to(mydevice)
@@ -103,6 +104,7 @@ def test(dataloader, model, save_result=False):
             else:
                 confus_matrix.TN += 1
     test_loss /= num_Graph
+    print(f"TP:{confus_matrix.TP}, TN:{confus_matrix.TN},FP:{confus_matrix.FP},FN:{confus_matrix.FN}")
     print(
         f"SNR:{snr_target},\t test loss:{test_loss:.2f},\t Pd:{confus_matrix.Pd()},\t Pfa:{confus_matrix.Pfa()}")
     print("=========")
@@ -113,8 +115,8 @@ def test(dataloader, model, save_result=False):
 
 
 def main():
-    torch.manual_seed(2024)
-    np.random.seed(2024)
+    # torch.manual_seed(2024)
+    # np.random.seed(2024)
 
     model = GCN(num_feature=1024, num_hidden=512, num_class=128,
                 dropout=0.2, pooling="mean").to(device=mydevice)
@@ -123,12 +125,12 @@ def main():
     optimizer = optim.Adam(
         model.parameters(), lr=learning_rate, weight_decay=5e-4)
     for i in range(epochs):
-        for snr in range(-20, 32, 2):
+        for snr in range(-20, 12, 2):
             signal_data.update(snr)
             signal_dataloader = DataLoader(signal_data, batch_size=num_SU)
             train(signal_dataloader, model, optimizer)
             # test(signal_test_dataloader, model)
-    for snr in range(-20, 32, 2):
+    for snr in range(-20, 12, 2):
         signal_test_data.update(snr)
         signal_test_dataloader = DataLoader(
             signal_test_data, batch_size=num_SU)
