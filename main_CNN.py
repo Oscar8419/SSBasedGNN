@@ -127,7 +127,7 @@ def main():
         train(signal_dataloader, model, optimizer)
 
     test(signal_test_dataloader, model)
-    save_model(model, save_path="./model_CNN.pt")
+    save_model(model, save_path="./model_param/model_CNN.pt")
 
 
 if __name__ == "__main__":

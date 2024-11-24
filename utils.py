@@ -97,7 +97,7 @@ def noise_feature(snr, num_SU=8, usingSNR=False, usingIQ=False):
         # return [noise_I, noise_Q]
 
 
-def save_result(result_dict, modulation="16QAM", file="test_result.json"):
+def save_result(result_dict, modulation="16QAM | -10dB", file="test_result.json"):
     result_dict["time"] = str(datetime.now())
     result_dict["modulation"] = modulation
     # 尝试读取现有的JSON文件内容
@@ -112,6 +112,15 @@ def save_result(result_dict, modulation="16QAM", file="test_result.json"):
     # 将数组写回JSON文件
     with open(file, "w") as f:
         json.dump(data, f, indent=4)
+    print("data saved")
+
+
+def save_raw_result(raw_result, snr, file="test_raw_result.json"):
+    raw_result["SNR"] = snr
+    raw_result["time"] = str(datetime.now())
+    with open(file, 'w') as json_file:
+        json.dump(raw_result, json_file, indent=4)
+    print("raw result is saved")
 
 
 def show_grad(model):

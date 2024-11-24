@@ -109,7 +109,7 @@ def main():
 
     model = LSTM().to(device=mydevice)
     # print(model)
-    load_model(model, save_path="./model_LSTM.pt")
+    load_model(model, save_path="./model_param/model_LSTM.pt")
 
     optimizer = optim.Adam(
         model.parameters(), lr=learning_rate, weight_decay=5e-4)
@@ -122,7 +122,7 @@ def main():
     #     train(signal_dataloader, model, optimizer)
     test(signal_test_dataloader, model)
 
-    save_model(model, save_path="./model_LSTM.pt")
+    save_model(model, save_path="./model_param/model_LSTM.pt")
 
 
 if __name__ == "__main__":
