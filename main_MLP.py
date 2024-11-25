@@ -20,7 +20,7 @@ num_SU = 4
 signal_dataloader = DataLoader(signal_data, batch_size=num_SU)
 signal_test_dataloader = DataLoader(signal_test_data, batch_size=num_SU)
 learning_rate = 0.1
-epochs = 1
+epochs = 3
 mydevice = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 test_result = {}
 test_raw_result = {}

@@ -2,7 +2,7 @@ import json
 from matplotlib import pyplot as plt
 import numpy as np
 
-json_filename = "./data_result/raw_data.json"
+json_filename = "./data_result/train_raw_data.json"
 
 with open(json_filename, 'r') as json_file:
     data_dict = json.load(json_file)
